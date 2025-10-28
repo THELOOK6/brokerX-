@@ -31,50 +31,27 @@
         <span>Metrics</span>
       </el-menu-item>
 
-      <!-- Only show Account if logged in -->
-      <el-menu-item v-if="isLoggedIn" index="/account">
+      <el-menu-item index="/account">
         <el-icon><User /></el-icon>
         <span>Account</span>
       </el-menu-item>
 
-      <!-- Only show Login/Signup if not logged in -->
-      <template v-else>
-        <el-menu-item index="/login">
-          <el-icon><User /></el-icon>
-          <span>Login</span>
-        </el-menu-item>
+      <el-menu-item index="/login">
+        <el-icon><User /></el-icon>
+        <span>Login</span>
+      </el-menu-item>
 
-        <el-menu-item index="/signup">
-          <el-icon><User /></el-icon>
-          <span>Signup</span>
-        </el-menu-item>
-      </template>
+      <el-menu-item index="/signup">
+        <el-icon><User /></el-icon>
+        <span>Signup</span>
+      </el-menu-item>
     </el-menu>
-
-    <!-- Login status footer -->
-    <div v-if="isLoggedIn" class="login-status" :class="{ collapsed }">
-      <p v-if="!collapsed" class="status-text">
-        Signed in as <strong>{{ userName }}</strong>
-      </p>
-      <el-button
-        v-if="!collapsed"
-        type="danger"
-        text
-        size="small"
-        class="logout-btn"
-        @click="handleLogout"
-      >
-        Logout
-      </el-button>
-      <p v-else class="status-dot" title="Logged in"></p>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   Fold,
   Expand,
@@ -88,28 +65,7 @@ const collapsed = ref(false)
 const toggleCollapse = () => (collapsed.value = !collapsed.value)
 
 const route = useRoute()
-const router = useRouter()
 const activePath = route.path
-
-// --- Login state --- //
-const token = ref<string | null>(null)
-const userName = ref('')
-
-onMounted(() => {
-  token.value = localStorage.getItem('token')
-  userName.value = localStorage.getItem('username') || 'User'
-})
-
-const isLoggedIn = computed(() => !!token.value)
-
-// --- Logout --- //
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('username')
-  token.value = null
-  ElMessage.success('Logged out successfully')
-  router.push('/login')
-}
 </script>
 
 <style scoped>
@@ -175,27 +131,4 @@ const handleLogout = () => {
   background-color: #1b1d25 !important;
   color: #409eff !important;
 }
-
-/* Status footer */
-.login-status {
-  border-top: 1px solid #1b1d25;
-  padding: 10px 16px;
-  color: #9ca3af;
-  font-size: 14px;
-  text-align: center;
-}
-.status-text strong {
-  color: #409eff;
-}
-.logout-btn {
-  margin-top: 6px;
-}
-.status-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #409eff;
-  border-radius: 50%;
-  margin: 10px auto;
-}
 </style>
-

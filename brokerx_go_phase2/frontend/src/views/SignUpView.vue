@@ -1,9 +1,20 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1 class="login-title">Sign In</h1>
+  <div class="signup-container">
+    <div class="signup-card">
+      <h1 class="signup-title">Sign Up</h1>
 
-      <el-form class="login-form" @submit.prevent="handleLogin">
+      <el-form class="signup-form" @submit.prevent="handleSignup">
+        <!-- Full Name -->
+        <el-form-item>
+          <el-input
+            v-model="name"
+            placeholder="Full Name"
+            prefix-icon="Message"
+            type="name"
+            autocomplete="full-name"
+          />
+        </el-form-item>
+        
         <!-- Email -->
         <el-form-item>
           <el-input
@@ -30,18 +41,17 @@
         <!-- Login Button -->
         <el-button
           type="primary"
-          class="login-btn"
+          class="signup-btn"
           native-type="submit"
           round
-          :loading="loading"
         >
-          Login
+          Sign Up
         </el-button>
       </el-form>
 
-      <p class="signup-text">
-        Don’t have an account?
-        <RouterLink to="/signup" class="signup-link">Sign up</RouterLink>
+      <p class="login-text">
+        Already have an account?
+        <RouterLink to="/login" class="login-link">Login</RouterLink>
       </p>
     </div>
   </div>
@@ -49,62 +59,57 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Message, Lock } from '@element-plus/icons-vue'
 
-const router = useRouter()
-
+const name = ref('')
 const email = ref('')
 const password = ref('')
-const loading = ref(false)
 
-const API_BASE = 'http://localhost:8080/api' 
+const API_BASE_URL = 'http://localhost:8080/api/v1/auth/signup' 
 
-const handleLogin = async () => {
-  if (!email.value || !password.value) {
+const handleSignup = async () => {
+  if (!name.value || !email.value || !password.value) {
     ElMessage.error('Please fill out all fields.')
     return
   }
 
-  loading.value = true
   try {
-    const res = await fetch(`${API_BASE}/v1/auth/login`, {
+    const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email.value,
         password: password.value,
-      }),
+        full_name: name.value
+      })
     })
 
-    if (!res.ok) {
-      const errText = await res.text()
-      throw new Error(errText || 'Login failed')
+    if (!response.ok) {
+      // Try to read backend error message if any
+      const errorData = await response.json().catch(() => ({}))
+      const msg = errorData?.error || `Signup failed (${response.status})`
+      throw new Error(msg)
     }
 
-    const data = await res.json()
+    const data = await response.json()
+    console.log('Signup successful:', data)
 
-    // Expected: { token: "jwt", user: { name, email } }
-    if (!data.token) throw new Error('Invalid response from server.')
-
-    localStorage.setItem('token', data.token)
-    localStorage.setItem('username', data.user?.name || data.user?.email || 'User')
-
-    ElMessage.success(`Welcome back, ${data.user?.name || 'user'}!`)
-
-    // Redirect to dashboard
-    router.push('/')
-  } catch (err: any) {
-    ElMessage.error(err.message || 'Login failed. Please try again.')
-  } finally {
-    loading.value = false
+    ElMessage.success(`Account created successfully for ${data.email}`)
+    // Optional: redirect or clear fields
+    name.value = ''
+    email.value = ''
+    password.value = ''
+  } catch (error: any) {
+    console.error('Signup error:', error)
+    ElMessage.error(error.message || 'An unexpected error occurred.')
   }
 }
 </script>
 
+
 <style scoped>
-.login-container {
+.signup-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -113,7 +118,7 @@ const handleLogin = async () => {
   color: #e5e7eb;
 }
 
-.login-card {
+.signup-card {
   background: #161a23;
   border: 1px solid #1b1d25;
   border-radius: 16px;
@@ -123,7 +128,7 @@ const handleLogin = async () => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.login-title {
+.signup-title {
   font-size: 2rem;
   font-weight: 700;
   color: #3b82f6;
@@ -131,7 +136,7 @@ const handleLogin = async () => {
 }
 
 /* Form */
-.login-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -152,7 +157,7 @@ const handleLogin = async () => {
 }
 
 /* Button */
-.login-btn {
+.signup-btn {
   width: 100%;
   background: linear-gradient(90deg, #2563eb, #3b82f6);
   border: none;
@@ -163,22 +168,22 @@ const handleLogin = async () => {
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
 }
-.login-btn:hover {
+.signup-btn:hover {
   box-shadow: 0 0 18px rgba(59, 130, 246, 0.5);
 }
 
-/* Signup */
-.signup-text {
+/* Login */
+.login-text {
   margin-top: 1.5rem;
   font-size: 0.9rem;
   color: #9ca3af;
 }
-.signup-link {
+.login-link {
   color: #3b82f6;
   text-decoration: none;
   margin-left: 4px;
 }
-.signup-link:hover {
+.login-link:hover {
   text-decoration: underline;
 }
 </style>
