@@ -9,7 +9,11 @@ services:
       - JWT_SECRET=devsecret
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/brokerx?sslmode=disable
       - REDIS_ADDR=redis:6379
-    depends_on: [postgres, redis]
+    depends_on: 
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   app2:
     build: ./backend
@@ -19,8 +23,11 @@ services:
       - JWT_SECRET=devsecret
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/brokerx?sslmode=disable
       - REDIS_ADDR=redis:6379
-    depends_on: [postgres, redis]
-
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
   postgres:
     image: postgres:16
     container_name: brokerx_postgres
@@ -29,6 +36,11 @@ services:
       - POSTGRES_DB=brokerx
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   redis:
     image: redis:7

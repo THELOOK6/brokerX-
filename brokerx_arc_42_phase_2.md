@@ -2,12 +2,15 @@
 
 ---
 
+## Note
+Please note that a complete reformating/restructuring of the project has been done. The approach and implementation from Phase 1 were largely re-evaluated and revised for Phase 2 to improve overall project direction and outcomes.
+
 ## 1. Introduction and Goals
 
 **System name:** BrokerX+  
 **Version:** Phase 2 (Go/Fiber)
 
-BrokerX+ is a prototype of an online brokerage platform developed as part of the LOG430 course. It simulates an end-to-end financial trading system that allows users to create accounts, authenticate, place stock orders, retrieve portfolio data, and receive simulated real-time market quotes.
+BrokerX+ is a prototype of an online brokerage platform. It simulates an end-to-end financial trading system that allows users to create accounts, authenticate, place stock orders, retrieve portfolio data, and receive simulated real-time market quotes.
 
 ### Primary Goals
 - Deliver a **functional prototype** aligned with the _Cahier des charges_ requirements.
@@ -142,6 +145,25 @@ package "BrokerX+ Backend" {
 
 ## 6. Runtime View
 
+### Overall Runtine View
+```plantuml
+ @startuml 
+actor User 
+rectangle "BrokerX+" { 
+  (UC-01 Registration & Account Activation) as UC1 
+  (UC-02 Authentication) as UC2 
+  (UC-03 Virtual Deposit) as UC3 
+  (UC-04 Market Data Subscribtion) as UC4 
+  (UC-05 Placing an Order) as UC5 
+} 
+User --> UC1 
+User --> UC2 
+User --> UC3 
+User --> UC4 
+User --> UC5 
+@enduml 
+```
+
 ### 6.1 Signup / Login Flow
 ```plantuml
 @startuml
@@ -258,7 +280,7 @@ Rationale: Simple reactivity and tight integration with REST APIs.
 **ADR-003 – Authentication**  
 Decision: Local JWT with bcrypt.  
 Rationale: Reproducibility and offline operation.  
-Rejected: Clerk/Auth0 (external SaaS).
+Alternatives: Clerk/Auth0 (external SaaS).
 
 **ADR-004 – Database**  
 Decision: PostgreSQL with GORM ORM.  
@@ -367,6 +389,14 @@ Placing an order means submitting a request to buy or sell a security. The user 
 
 ## Note
 Please note that the backend was developed with significant assistance from SIAG, as I am not familiar with the GO programming language. It was chosen due to its performance and lightweight nature.
+
+## Setup 
+To get the project running from scratch a simple build and up should get the project running. In the case that some containers do not properly start a restart should fix this issue.
+
+```
+docker compose build
+docker compose up -d
+```
 
 ---
 
