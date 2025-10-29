@@ -1,0 +1,16 @@
+@startuml
+!define RECTANGLE class
+actor "Trader (User)" as User
+
+rectangle "BrokerX+ System" {
+  rectangle "Frontend (Vue.js)" as Frontend
+  rectangle "Backend API (Go/Fiber)" as Backend
+  rectangle "Database (PostgreSQL)" as DB
+  rectangle "Cache (Redis)" as Cache
+}
+
+User --> Frontend : HTTP (Browser)
+Frontend --> Backend : REST (Axios + JWT)
+Backend --> DB : SQL (GORM)
+Backend --> Cache : Redis Protocol
+@enduml

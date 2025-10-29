@@ -55,10 +55,10 @@ import { ref, onMounted } from 'vue'
 import Chart from 'chart.js/auto'
 
 const summary = ref([
-  { label: 'Total Orders', value: '12,304' },
-  { label: 'Total Users', value: '3,210' },
-  { label: 'Revenue', value: '$56,431' },
-  { label: 'Profit', value: '$12,056' },
+  { label: 'Total Orders', value: '0' },
+  { label: 'Total Users', value: '0' },
+  { label: 'Revenue', value: '$0' },
+  { label: 'Profit', value: '$0' },
 ])
 
 const orders = ref([

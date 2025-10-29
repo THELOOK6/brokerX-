@@ -1,0 +1,26 @@
+@startuml
+package "BrokerX+ Docker Stack" {
+  node "Frontend (Vue.js)" as FE
+  node "NGINX Load Balancer" as NGINX
+  node "Kong Gateway" as Kong
+
+  node "Backend Layer" {
+    node "App1 (Go/Fiber)" as App1
+    node "App2 (Go/Fiber)" as App2
+  }
+
+  database "PostgreSQL" as DB
+  node "Redis" as Redis
+  node "Prometheus" as Prom
+  node "Grafana" as Graf
+}
+
+FE --> NGINX
+NGINX --> Kong
+Kong --> App1
+Kong --> App2
+App1 --> DB
+App1 --> Redis
+Prom --> App1
+Graf --> Prom
+@enduml

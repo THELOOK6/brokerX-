@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"brokerx/backend/internal/models"
 	"brokerx/backend/internal/store"
+	"brokerx/backend/internal/services"
 )
 
 type OrderCreate struct { AccountID string `json:"account_id"`; Symbol string `json:"symbol"`; Side string `json:"side"`; Qty int `json:"qty"`; Price float64 `json:"price"` }
@@ -32,4 +33,37 @@ func GetOrder(c *fiber.Ctx) error {
 	var o models.Order
 	if err := store.DB.First(&o, "id = ?", id).Error; err != nil { return c.Status(404).JSON(fiber.Map{"error":"not found"}) }
 	return c.JSON(o)
+}
+
+func PlaceOrder(c *fiber.Ctx) error {
+	accountID := c.Locals("account_id").(string)
+
+	var req struct {
+		Symbol string  `json:"symbol"`
+		Side   string  `json:"side"`
+		Qty    int     `json:"qty"`
+		Price  float64 `json:"price"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid request"})
+	}
+
+	order, err := services.PlaceOrder(accountID, req.Symbol, req.Side, req.Qty, req.Price)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(order)
+}
+
+func GetOrders(c *fiber.Ctx) error {
+	accountID := c.Locals("account_id").(string)
+
+	orders, err := services.GetOrders(accountID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch orders"})
+	}
+
+	return c.JSON(orders)
 }

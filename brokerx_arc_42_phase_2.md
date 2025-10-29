@@ -187,13 +187,17 @@ Backend -> Trader : SSE price events (1/s)
 
 ```plantuml
 @startuml
-deploy "BrokerX+ Docker Stack" {
+package "BrokerX+ Docker Stack" {
   node "Frontend (Vue.js)" as FE
   node "NGINX Load Balancer" as NGINX
   node "Kong Gateway" as Kong
-  node "App1 (Go/Fiber)" as App1
-  node "App2 (Go/Fiber)" as App2
-  node "PostgreSQL" as DB
+
+  node "Backend Layer" {
+    node "App1 (Go/Fiber)" as App1
+    node "App2 (Go/Fiber)" as App2
+  }
+
+  database "PostgreSQL" as DB
   node "Redis" as Redis
   node "Prometheus" as Prom
   node "Grafana" as Graf
@@ -285,6 +289,10 @@ Rationale: Protects API from abuse.
 Decision: Go modular code with `cmd`, `internal` structure.  
 Rationale: Scalable, maintainable layout.
 
+**ADR-011– Development Strategy**  
+Decision: Backend deployed twice using `app1` and `app2`
+Rationale: Redundence
+
 ---
 
 ## 10. Quality Requirements
@@ -336,7 +344,30 @@ Rationale: Scalable, maintainable layout.
 - Prometheus & Grafana official docs  
 - Docker Compose Specification
 
+
+## UC Must
+### UC-01 — Registration and Account Activation
+Registration is used to create a new account on the platform. The user enters their email and a password, and the system creates an account in a pending state. An activation token is generated, and the user must validate it in order to activate their account.
+Without completing this step, the user cannot use the platform.
+
+### UC-02 — Authentication (Login)
+Login allows a registered user to access their account. The user enters their email and password, and if the information is correct and the account is active, the system issues a session token. This token allows the user to securely use the platform’s features.
+
+### UC-03 — Virtual Deposit
+The virtual deposit feature allows the user to add simulated funds to their account. The user specifies an amount, and the system adds it to their account balance. A special key is used to ensure that the same deposit cannot be counted more than once.
+
+### UC-04 — Market Data Subscription
+This feature allows users to receive real-time market prices and order book updates for selected symbols. When the user opens the market view or subscribes to certain instruments, the system checks that the session is valid and then opens a live data stream (WebSocket or SSE). The user continuously receives price updates and order book changes with low latency.
+If the data source is unavailable or the update rate is too high, the system switches to a reduced update mode and may display a notice that data is delayed.
+
+### UC-05 — Placing an Order
+Placing an order means submitting a request to buy or sell a security. The user selects the symbol, the type of order, the quantity, and optionally a limit price. The system verifies that the user has sufficient funds and then records the order. If a matching counterparty order exists, the trade is executed; otherwise, the order remains pending.
+
+
+
+## Note
+Please note that the backend was developed with significant assistance from SIAG, as I am not familiar with the GO programming language. It was chosen due to its performance and lightweight nature.
+
 ---
 
-**End of Document**
 

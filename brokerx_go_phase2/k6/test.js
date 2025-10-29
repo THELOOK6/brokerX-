@@ -4,7 +4,7 @@ import { sleep, check } from 'k6';
 export const options = {
   stages: [{ duration: '30s', target: 20 }, { duration: '1m', target: 50 }, { duration: '30s', target: 0 }],
 };
-const BASE = __ENV.BASE || 'http://localhost/api/v1';
+const BASE = __ENV.BASE || 'http://localhost:8080/api/v1';
 export default function () {
   let login = http.post(`${BASE}/auth/login`, JSON.stringify({ email: "user@example.com", password: "password" }), { headers: { 'Content-Type': 'application/json' } });
   if (login.status === 200) {
